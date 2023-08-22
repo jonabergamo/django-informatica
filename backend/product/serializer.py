@@ -7,7 +7,7 @@ from .models import CustomUser, CartItem, Cart
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["email", "name"]  # e outros campos que você queira expor
+        fields = ["id", "email", "name", "password"]
 
 
 class CategorySerializer(ModelSerializer):
@@ -23,18 +23,25 @@ class ProductSerializer(ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ["id", "name", "category", "price", "quantity"]
+        fields = ["id", "name", "category", "price", "quantity", "image"]
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = ProductSerializer()  # Utilizando o serializer do produto
+    product = ProductSerializer()
+
     class Meta:
         model = CartItem
-        fields = ['product', 'quantity']
+        fields = ["product", "quantity"]
+
 
 class CartSerializer(serializers.ModelSerializer):
-    items = CartItemSerializer(many=True, read_only=True, source='cartitem_set')
+    items = CartItemSerializer(many=True, read_only=True)
+    total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'items'] # 'items' irá conter os produtos do carrinho
+        fields = ["user", "items", "total_price"]  # removido o "id" daqui
+
+    def get_total_price(self, obj):
+        total = sum(item.product.price * item.quantity for item in obj.items.all())
+        return total
