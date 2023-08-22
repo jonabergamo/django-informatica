@@ -8,38 +8,23 @@ export default function RegisterForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    if (!name || !email || !password) {
-      setError("All fields are necessary.");
-      return;
-    }
-    setError();
-
+  const handleSubmit = async (email, name, password) => {
     try {
-      await fetch("api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
+      const response = await axios.post('http://localhost:8000/users/register', {
+        email,
+        name,
+        password
       });
-
-      if (res.ok) {
-        const form = e.target;
-        form.reset();
-      } else {
-        console.log("User registration failed");
-      }
+      // Você pode salvar o token ou outras informações aqui, se a sua API retornar esses dados
+      return response.data;
     } catch (error) {
-      console.log("Error during registration failed", error);
+      console.error('Erro ao registrar o usuário:', error);
+      // Manipule o erro conforme necessário, por exemplo, mostrando uma mensagem para o usuário
+      throw error;
     }
   };
+
 
   return (
     <div className="grid place-items-center h-screen">

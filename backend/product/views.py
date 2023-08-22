@@ -14,13 +14,19 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from bcrypt import hashpw, gensalt, checkpw
 from django.contrib.auth import authenticate
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework.decorators import authentication_classes, permission_classes
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
+    permission_classes = [IsAuthenticated]
+    
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def register(self, request):
         email = request.data.get('email')
         name = request.data.get('name')
@@ -37,7 +43,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         except IntegrityError:
             return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def login(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -48,8 +54,14 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-    # You can also generate and return a token here if you are using token-based authentication
-            return Response({'status': 'Login successful', 'user_id': user.id}, status=status.HTTP_200_OK)
+            # Generate JWT token
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'status': 'Login successful',
+                'user_id': user.id,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Incorrect password'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -65,11 +77,14 @@ def get_category_ids(category):
 class ViewSetCategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
 
 
 class ViewSetProduct(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+
 
     @action(detail=False, methods=["get"], url_path="category/(?P<category_id>\d+)")
     def products_by_category(self, request, category_id=None):
@@ -122,6 +137,8 @@ class ViewSetProduct(viewsets.ModelViewSet):
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]
+
 
     @action(detail=True, methods=["post"])
     def add_product(self, request, pk=None):

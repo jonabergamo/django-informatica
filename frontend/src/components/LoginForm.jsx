@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
 import React, { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import axios from 'axios';
+import login from '../api/Login'
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -13,8 +14,23 @@ export default function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/users/login/", {
+        email: email,
+        password: password,
+      });
 
+      // Aqui você pode salvar o token JWT no local storage ou em cookies, por exemplo
+      localStorage.setItem("token", response.data.access);
+
+      return response.data; // Retorna os dados de resposta (token, user_id, etc.)
+    } catch (error) {
+      // Trate o erro conforme necessário
+      console.error("Erro ao fazer login:", error);
+      throw error;
+    }
   };
+
   return (
     <div className="grid place-items-center h-screen">
       <div className="shadow-lg p-5 rounded-lg border-t-4 border-green-400">

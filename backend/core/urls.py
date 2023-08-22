@@ -7,7 +7,6 @@ from product.views import (
     CustomUserViewSet,
     CartViewSet,
 )
-
 router = DefaultRouter()
 router.register("category", ViewSetCategory, basename="Category")
 router.register("product", ViewSetProduct, basename="Product")
