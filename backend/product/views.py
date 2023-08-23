@@ -40,7 +40,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             # Create an empty cart for this user
             Cart.objects.create(user=user)
             return Response({'status': 'User created'}, status=status.HTTP_201_CREATED)
-        except IntegrityError:
+        except IntegrityError:                                                     
             return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
