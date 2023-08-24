@@ -4,13 +4,14 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import login from "../api/Login";
+import { useAuth } from "../Context/Auth";
 
 export default function LoginForm() {
+  const { login } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,21 +20,22 @@ export default function LoginForm() {
         email: email,
         password: password,
       });
-
+      const token = response.data.access;
+      const user_id = response.data.user_id;
       // Aqui você pode salvar o token JWT no local storage ou em cookies, por exemplo
-      localStorage.setItem("token", response.data.access);
+      login(token, user_id);
+      
 
       return response.data; // Retorna os dados de resposta (token, user_id, etc.)
     } catch (error) {
       // Trate o erro conforme necessário
-      console.error("Erro ao fazer login:", error);
-      throw error;
+      setError(error.response.data.error);
     }
   };
 
   return (
     <div className="grid place-items-center h-screen">
-      <div className="shadow-lg p-5 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
+      <div className="p-8 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
         <h1 className="text-xl font-bold my-4">Login</h1>
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <input

@@ -17,53 +17,11 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import permissions
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
-
-class CustomUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticated]
-    
-
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
-    def register(self, request):
-        email = request.data.get('email')
-        name = request.data.get('name')
-        password = request.data.get('password')
-
-        # Hashing the password
-        hashed_password = hashpw(password.encode('utf-8'), gensalt())
-
-        try:
-            user = CustomUser.objects.create(email=email, name=name, password=hashed_password.decode('utf-8'))
-            # Create an empty cart for this user
-            Cart.objects.create(user=user)
-            return Response({'status': 'User created'}, status=status.HTTP_201_CREATED)
-        except IntegrityError:                                                     
-            return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
-    def login(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-
-        try:
-            user = CustomUser.objects.get(email=email)
-        except CustomUser.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        if checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-            # Generate JWT token
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'status': 'Login successful',
-                'user_id': user.id,
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Incorrect password'}, status=status.HTTP_400_BAD_REQUEST)
+from django.utils import timezone
+import pytz
 
 
 def get_category_ids(category):
@@ -77,14 +35,27 @@ def get_category_ids(category):
 class ViewSetCategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            # Se o método for GET, não aplicar permissões
+            return [permissions.AllowAny()]
+
+        # Para qualquer outro método, requer autenticação
+        return [permissions.IsAuthenticated()]
 
 
 class ViewSetProduct(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        if self.request.method == "GET":
+            # Se o método for GET, não aplicar permissões
+            return [permissions.AllowAny()]
+
+        # Para qualquer outro método, requer autenticação
+        return [permissions.IsAuthenticated()]
 
     @action(detail=False, methods=["get"], url_path="category/(?P<category_id>\d+)")
     def products_by_category(self, request, category_id=None):
@@ -138,7 +109,6 @@ class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
-
 
     @action(detail=True, methods=["post"])
     def add_product(self, request, pk=None):
@@ -207,3 +177,73 @@ class CartViewSet(viewsets.ModelViewSet):
             cart_items.delete()
 
         return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+
+
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update_last_login(self, user):
+        sao_paulo_tz = pytz.timezone("America/Sao_Paulo")
+        user.last_login = timezone.now().astimezone(sao_paulo_tz)
+        user.save()
+
+    @action(detail=False, methods=["post"], permission_classes=[AllowAny])
+    def register(self, request):
+        email = request.data.get("email")
+        name = request.data.get("name")
+        password = request.data.get("password")
+
+        # Hashing the password
+        hashed_password = hashpw(password.encode("utf-8"), gensalt())
+
+        try:
+            user = CustomUser.objects.create(
+                email=email, name=name, password=hashed_password.decode("utf-8")
+            )
+            self.update_last_login(user)
+            # Create an empty cart for this user
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {
+                    "status": "User created, Login successful",
+                    "user_id": user.id,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK,
+            )
+        except IntegrityError:
+            return Response(
+                {"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=False, methods=["post"], permission_classes=[AllowAny])
+    def login(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        if checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
+            self.update_last_login(user)
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {
+                    "status": "Login successful",
+                    "user_id": user.id,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"error": "Incorrect password"}, status=status.HTTP_400_BAD_REQUEST
+            )

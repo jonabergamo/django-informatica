@@ -2,12 +2,16 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../Context/Auth";
 
 export default function RegisterForm() {
+  const { login } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState();
+  const router = useRouter();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -21,7 +25,9 @@ export default function RegisterForm() {
         }
       );
       setError();
-      return response.data;
+      const token = response.data.access;
+      const user_id = response.data.user_id;
+      login(token, user_id);
     } catch (error) {
       setError(error.response.data.error);
     }
@@ -29,7 +35,7 @@ export default function RegisterForm() {
 
   return (
     <div className="grid place-items-center h-screen">
-      <div className="shadow-lg p-5 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
+      <div className="p-8 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
         <h1 className="text-xl font-bold my-4">Register</h1>
         <form className="flex flex-col gap-3" onSubmit={handleRegister}>
           <input

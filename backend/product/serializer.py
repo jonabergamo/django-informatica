@@ -4,11 +4,12 @@ from rest_framework import serializers
 from .models import CustomUser, CartItem, Cart
 
 
+
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["id", "email", "name", "password"]
-
+        fields = ["id", "email", "name"]
+        extra_kwargs = {'password': {'write_only': True}}
 
 class CategorySerializer(ModelSerializer):
     subcategories = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
