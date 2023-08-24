@@ -104,6 +104,13 @@ class ViewSetProduct(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @action(detail=False, methods=["get"], url_path="search/(?P<search_term>\w+)")
+    def search(self, request, search_term=None):
+        # Pesquisa produtos que contêm o termo de pesquisa no nome
+        products = Product.objects.filter(name__icontains=search_term)
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
+
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()

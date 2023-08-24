@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../Context/Auth";
 
 export default function RegisterForm() {
-  const { login } = useAuth();
+  const { login, new_message } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,15 +27,16 @@ export default function RegisterForm() {
       setError();
       const token = response.data.access;
       const user_id = response.data.user_id;
-      login(token, user_id);
+      new_message("Conta criada com sucesso! Faça login para continuar");
+      router.push("/login");
     } catch (error) {
       setError(error.response.data.error);
     }
   };
 
   return (
-    <div className="grid place-items-center h-screen">
-      <div className="p-8 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
+    <div className="grid place-items-center h-full">
+      <div className="mt-56 p-8 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
         <h1 className="text-xl font-bold my-4">Register</h1>
         <form className="flex flex-col gap-3" onSubmit={handleRegister}>
           <input
@@ -73,7 +74,7 @@ export default function RegisterForm() {
               {error}
             </div>
           )}
-          <Link href="/" className="text-sm mt-3 text-right">
+          <Link href="/login" className="text-sm mt-3 text-right">
             Already have an account? <span className="underline">Login</span>
           </Link>
         </form>

@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
     setMessage(message);
     setInterval(() => {
       setMessage();
-    }, 5000);
+    }, 8000);
   };
 
   const login = (token, user_id) => {
@@ -53,7 +53,6 @@ export function AuthProvider({ children }) {
     setIsLoggedIn(true);
     getUser(user_id);
     router.push("/");
-    new_message("Conta criada com sucesso!");
   };
 
   const logout = () => {
