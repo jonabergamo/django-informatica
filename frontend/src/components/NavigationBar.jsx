@@ -10,8 +10,9 @@ export default function NavigationBar() {
   const [search, setSearch] = useState();
   const router = useRouter();
 
-  const handleSearch = () => {
-    router.replace(`search/${search}/`);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    router.replace(`/search/${search}/`);
   };
 
   return (

@@ -1,13 +1,15 @@
+'use client'
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-export default function ProductList() {
+export default function ProductList(props) {
   const [products, setProducts] = useState([]);
+  const search_therm = props.search ? 'search/'+props.search : ''
 
   useEffect(() => {
     // Chamada à API para obter a lista de produtos
     axios
-      .get("http://127.0.0.1:8000/product/")
+      .get(`http://127.0.0.1:8000/product/${search_therm}`)
       .then((response) => {
         setProducts(response.data);
       })
