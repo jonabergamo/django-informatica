@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "../Context/Auth";
 import { BiTrash } from 'react-icons/bi'
@@ -7,17 +7,17 @@ import { motion, useDragControls } from 'framer-motion'
 export default function CartScreen() {
   const { user, token, getCart, cart } = useAuth();
 
-
-
-
+  const cartRef = useRef();
   useEffect(() => {
     getCart()
+
   }, []);
+
 
   return (
 
     cart && (
-      <motion.div className="absolute right-2 top-[6rem] max-w-lg bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col gap-2 p-4" initial={{ x: 400 }} animate={{ x: 0 }} exit={{ x: 400 }}>
+      <motion.div  className="absolute right-2 top-[6rem] max-w-lg bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col gap-2 p-4" initial={{ x: 400 }} animate={{ x: 0 }} exit={{ x: 400 }}>
         <h1 className="text-xl font-medium">Meu carrinho:</h1>
         <div className="flex flex-col gap-3 m-h-96 overflow-y-scroll overflow-x-hidden">
           {cart.items &&

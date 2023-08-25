@@ -7,7 +7,7 @@ import { useAuth } from "../Context/Auth";
 export default function ProductList(props) {
   const [products, setProducts] = useState([]);
   const search_therm = props.search ? "search/" + props.search + "/" : "";
-  const { user, getCart } = useAuth()
+  const { user, getCart, setShowCart } = useAuth()
 
   const getProducts = () => {
     axios
@@ -43,6 +43,7 @@ export default function ProductList(props) {
 
       console.log('Produto adicionado com sucesso:', response.data);
       getCart()
+      setShowCart(true)
     } catch (error) {
       console.error('Erro ao adicionar o produto:', error);
     }

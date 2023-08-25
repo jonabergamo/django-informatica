@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BiCart } from "react-icons/bi";
 import CartScreen from "./CartScreen";
 import { useAuth } from "../Context/Auth";
 
 export default function CartButton() {
-  const [show, setShow] = useState(false);
-  const { cart, getCart } = useAuth();
+  const { cart, getCart, showCart, setShowCart } = useAuth();
 
   useEffect(() => {
     getCart()
@@ -19,10 +18,10 @@ export default function CartButton() {
         size={30}
         className="hover:text-blue-500 cursor-pointer select-none"
         onClick={() => {
-          setShow(!show);
+          setShowCart(!showCart);
         }}
       />
-      {show && <CartScreen />}
+      {showCart && <CartScreen/>}
     </div>
   );
 }

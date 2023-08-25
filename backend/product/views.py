@@ -25,10 +25,10 @@ import pytz
 
 
 def get_category_ids(category):
-    ids = [category.id]
+    category_ids = [category.id]
     for child in category.children.all():
-        ids += get_category_ids(child)
-    return ids
+        category_ids += get_category_ids(child)
+    return category_ids
 
 
 # Create your views here.
@@ -135,6 +135,28 @@ class ViewSetProduct(viewsets.ModelViewSet):
         products = Product.objects.filter(name__icontains=search_term)
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], url_path="category/(?P<category_path>.+)")
+    def products_by_category(self, request, category_path=None):
+        category_paths = category_path.split("/")
+        try:
+            # Comece pela categoria raiz
+            category = Category.objects.get(path=category_paths[0], parent__isnull=True)
+
+            # Percorra as subcategorias especificadas na URL
+            for subcategory_path in category_paths[1:]:
+                category = category.children.get(path=subcategory_path)
+
+            # Busque os produtos que estão sob a categoria e subcategorias
+            products_in_category = Product.objects.filter(
+                category_id__in=get_category_ids(category)
+            )
+            serializer = self.get_serializer(products_in_category, many=True)
+            return Response(serializer.data)
+        except Category.DoesNotExist:
+            return Response(
+                {"error": "Categoria não encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class CartViewSet(viewsets.ModelViewSet):

@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
 )
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.text import slugify
 
 
 class CustomUserManager(BaseUserManager):
@@ -47,9 +48,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class Category(models.Model):
     name = models.CharField("Category Name", max_length=25)
+    path = models.CharField("Category Path", max_length=25, blank=True, editable=False)
     parent = models.ForeignKey(
         "self", blank=True, null=True, related_name="children", on_delete=models.CASCADE
     )
+
+    def save(self, *args, **kwargs):
+        # Criar o caminho amigável a partir do nome da categoria
+        self.path = slugify(self.name)
+        
+        super(Category, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name

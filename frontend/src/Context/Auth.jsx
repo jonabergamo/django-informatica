@@ -15,6 +15,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState();
   const [message, setMessage] = useState();
   const [cart, setCart] = useState();
+  const [showCart, setShowCart] = useState(false)
 
   const getUser = (user_id) => {
     axios
@@ -80,7 +81,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, login, logout, user, new_message, message, getCart, cart }}
+      value={{ isLoggedIn, login, logout, user, new_message, message, getCart, cart, setCart, setShowCart, showCart }}
     >
       {children}
     </AuthContext.Provider>
