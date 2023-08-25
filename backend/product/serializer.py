@@ -4,12 +4,12 @@ from rest_framework import serializers
 from .models import CustomUser, CartItem, Cart
 
 
-
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["id", "email", "name"]
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ["id", "email", "name", "is_staff", "is_superuser"]
+        extra_kwargs = {"password": {"write_only": True}}
+
 
 class CategorySerializer(ModelSerializer):
     subcategories = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
@@ -21,10 +21,22 @@ class CategorySerializer(ModelSerializer):
 
 class ProductSerializer(ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+    promotional_price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, required=False, allow_null=True
+    )
 
     class Meta:
         model = Product
-        fields = ["id", "name", "category", "price", "quantity", "image"]
+        fields = [
+            "id",
+            "name",
+            "category",
+            "price",
+            "promotional_price",
+            "rating",
+            "quantity",
+            "image",
+        ]
 
 
 class CartItemSerializer(serializers.ModelSerializer):

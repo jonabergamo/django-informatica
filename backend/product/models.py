@@ -34,7 +34,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=100)
-    password = models.CharField(max_length=50)
+    password = models.CharField(max_length=100)
     last_login = models.DateTimeField(null=True, blank=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -62,6 +62,10 @@ class Product(models.Model):
     image = models.CharField("img_url", max_length=250)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField(default=0)
+    promotional_price = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, default=None
+    )
+    rating = models.DecimalField(max_digits=3, default=0, decimal_places=2)
 
     def __str__(self):
         return self.name

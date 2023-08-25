@@ -85,6 +85,31 @@ class ViewSetProduct(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @action(detail=True, methods=["post"], url_path="add_promotion")
+    def add_promotion(self, request, pk=None):
+        product = self.get_object()
+        promotional_price = request.data.get("promotional_price", 0)
+        product.promotional_price = float(promotional_price)
+        product.save()
+        return Response(
+            {
+                "success": f"Preço promocional {promotional_price}",
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["post"], url_path="remove_promotion")
+    def remove_promotion(self, request, pk=None):
+        product = self.get_object()
+        product.promotional_price = None
+        product.save()
+        return Response(
+            {
+                "success": f"Preço promocional removido",
+            },
+            status=status.HTTP_200_OK,
+        )
+
     @action(detail=True, methods=["post"], url_path="sell")
     def sell(self, request, pk=None):
         product = self.get_object()

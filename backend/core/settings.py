@@ -26,6 +26,26 @@ SECRET_KEY = "django-insecure-%w0hid&7=ibv4zt!#r@fz+^ph(4)f3x+9c0sllhugtjxm6q&-+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "HEAD",
+    "OPTIONS",
+    # 'POST', 'PUT', etc, se forem necessários
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "origin",
+    "cookie",
+]
+
 
 # Application definition
 
@@ -65,7 +85,6 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = "product.CustomUser"
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://localhost:3000"]
 
 MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
