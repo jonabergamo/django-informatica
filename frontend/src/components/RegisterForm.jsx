@@ -36,18 +36,20 @@ export default function RegisterForm() {
 
   return (
     <div className="grid place-items-center h-full">
-      <div className="mt-56 p-8 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
+      <div className=" p-8 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
         <h1 className="text-xl font-bold my-4">Register</h1>
         <form className="flex flex-col gap-3" onSubmit={handleRegister}>
+          <label htmlFor="" className="h-3">Nome Completo</label>
           <input
             type="text"
-            placeholder="Full Name"
+            placeholder="Nome Completo"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
             className="bg-white rounded-sm text-zinc-900"
           />
+          <label htmlFor="" className="h-3">E-mail</label>
           <input
             type="text"
             placeholder="Email"
@@ -57,6 +59,8 @@ export default function RegisterForm() {
             }}
             className="bg-white rounded-sm text-zinc-900"
           />
+          <label htmlFor="" className="h-3">Senha</label>
+
           <input
             type="password"
             placeholder="Password"

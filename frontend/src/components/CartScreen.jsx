@@ -3,9 +3,11 @@ import axios from "axios";
 import { useAuth } from "../Context/Auth";
 import { BiTrash } from 'react-icons/bi'
 import { motion, useDragControls } from 'framer-motion'
+import { useRouter } from "next/navigation";
 
 export default function CartScreen() {
-  const { user, token, getCart, cart } = useAuth();
+  const { user, token, getCart, cart, getProducts } = useAuth();
+  const router = useRouter()
 
   const cartRef = useRef();
   useEffect(() => {
@@ -13,11 +15,28 @@ export default function CartScreen() {
 
   }, []);
 
+  const handleCheckout = async () => {
+    try {
+      const response = await axios.post(
+        `http://127.0.0.1:8000/cart/${localStorage.getItem("user_id")}/checkout/`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      getCart();
+      getProducts();
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao finalizar a compra:", error);
+    }
+  };
+
 
   return (
 
     cart && (
-      <motion.div  className="absolute right-2 top-[6rem] max-w-lg bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col gap-2 p-4" initial={{ x: 400 }} animate={{ x: 0 }} exit={{ x: 400 }}>
+      <motion.div className="absolute right-2 top-[6rem] max-w-lg bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col gap-2 p-4" initial={{ x: 400 }} animate={{ x: 0 }} exit={{ x: 400 }}>
         <h1 className="text-xl font-medium">Meu carrinho:</h1>
         <div className="flex flex-col gap-3 m-h-96 overflow-y-scroll overflow-x-hidden">
           {cart.items &&
@@ -39,7 +58,7 @@ export default function CartScreen() {
                 }).format(cart.total_price)}
               </span>
             </h1>
-            <button className="text-white right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-md px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <button className="text-white right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-md px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={handleCheckout}>
               Finalizar compra
             </button>
           </div> : <h1>Nada por aqui, adicione itens para começar!</h1>}

@@ -36,9 +36,10 @@ export default function LoginForm() {
   return (
     <div className="grid place-items-center h-full">
       {message && <AlertMessage>{message}</AlertMessage>}
-      <div className="mt-56 p-8 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
-        <h1 className="text-xl font-bold my-4">Login</h1>
+      <div className="p-8 rounded-lg border-t-4 border-blue-400 shadow-[rgba(0,_0,_0,_0.4)_0px_30px_90px]">
+        <h1 className="text-xl font-bold my-4">Entrar na conta</h1>
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+          <label htmlFor="" className="h-3">E-mail</label>
           <input
             type="text"
             placeholder="Email"
@@ -48,6 +49,7 @@ export default function LoginForm() {
             value={email}
             className="bg-white rounded-sm text-zinc-900"
           />
+          <label htmlFor="" className="h-3">Senha</label>
           <input
             className="bg-white rounded-sm text-zinc-900"
             type="password"
@@ -66,7 +68,7 @@ export default function LoginForm() {
             </div>
           )}
           <Link href="/register" className="text-sm mt-3 text-right">
-            Don't have an account? <span className="underline">Register</span>
+            Não possui uma conta? <span className="underline">Registre-se</span>
           </Link>
         </form>
       </div>

@@ -36,6 +36,11 @@ class ViewSetCategory(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
+    def list(self, request, *args, **kwargs):
+        categories_parents = Category.objects.filter(parent__isnull=True)
+        serializer = self.get_serializer(categories_parents, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def get_permissions(self):
         if self.request.method == "GET":
             # Se o método for GET, não aplicar permissões

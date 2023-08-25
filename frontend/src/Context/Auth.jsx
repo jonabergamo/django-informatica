@@ -16,6 +16,8 @@ export function AuthProvider({ children }) {
   const [message, setMessage] = useState();
   const [cart, setCart] = useState();
   const [showCart, setShowCart] = useState(false)
+  const [products, setProducts] = useState([]);
+
 
   const getUser = (user_id) => {
     axios
@@ -62,6 +64,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
+    setCart()
     setIsLoggedIn(false);
   };
 
@@ -79,9 +82,21 @@ export function AuthProvider({ children }) {
       });
   }
 
+  const getProducts = (search_therm = '') => {
+    axios
+      .get(`http://127.0.0.1:8000/product/${search_therm}`)
+      .then((response) => {
+        setProducts(response.data);
+        console.log(products)
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar produtos:", error);
+      });
+  }
+
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, login, logout, user, new_message, message, getCart, cart, setCart, setShowCart, showCart }}
+      value={{ isLoggedIn, login, logout, user, new_message, message, getCart, cart, setCart, setShowCart, showCart, getProducts, products, setProducts }}
     >
       {children}
     </AuthContext.Provider>

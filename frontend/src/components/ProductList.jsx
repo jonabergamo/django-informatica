@@ -3,26 +3,18 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import RatingStars from "./RatingStarts";
 import { useAuth } from "../Context/Auth";
+import { useRouter } from 'next/navigation'
 
 export default function ProductList(props) {
-  const [products, setProducts] = useState([]);
-  const search_therm = props.search ? "search/" + props.search + "/" : "";
-  const { user, getCart, setShowCart } = useAuth()
 
-  const getProducts = () => {
-    axios
-      .get(`http://127.0.0.1:8000/product/${search_therm}`)
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar produtos:", error);
-      });
-  }
+  const search_therm = props.search ? "search/" + props.search + "/" : "";
+  const { user, getCart, setShowCart, getProducts, products } = useAuth()
+  const router = useRouter()
+
 
   useEffect(() => {
     // Chamada à API para obter a lista de produtos
-    getProducts()
+    getProducts(search_therm)
   }, []); // Passar um array vazio como segundo argumento significa que este efeito será executado apenas uma vez, similar ao componentDidMount
 
   function truncateString(str, num) {
@@ -51,7 +43,7 @@ export default function ProductList(props) {
 
   return (
     <div className="flex gap-5 flex-wrap pb-16">
-      {products.map((product) => (
+      {products.length > 0 ? products.map((product) => (
         <div
           key={product.id}
           className="p-7 flex flex-col w-64 bg-white rounded-lg justify-between items-center shadow-[rgba(0,_0,_0,_0.9)_0px_30px_40px]"
@@ -98,7 +90,15 @@ export default function ProductList(props) {
             Adicionar ao Carrinho
           </button>
         </div>
-      ))}
+      )) : <div className="flex flex-col w-full h-full mt-[15%] justify-center items-center"><h1 className="text-xl text-gray-300">Nenhum produto encontrado :(</h1>          <button
+        type="button"
+        className="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-900 mt-5"
+        onClick={() => {
+          router.replace('/')
+        }}
+      >
+        Voltar à pagina inicial
+      </button></div>}
     </div>
   );
 }

@@ -11,12 +11,18 @@ class CustomUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True}}
 
 
-class CategorySerializer(ModelSerializer):
-    subcategories = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+class CategoryChildSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("name", "path", "children")
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    children = CategoryChildSerializer(many=True, read_only=True)
 
     class Meta:
         model = Category
-        fields = ["name", "parent", "subcategories", "path"]
+        fields = ("name", "parent", "path", "children")
 
 
 class ProductSerializer(ModelSerializer):

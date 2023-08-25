@@ -48,7 +48,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class Category(models.Model):
     name = models.CharField("Category Name", max_length=25)
-    path = models.CharField("Category Path", max_length=25, blank=True, editable=False)
+    path = models.CharField("Category Path", max_length=25, blank=True, editable=True)
     parent = models.ForeignKey(
         "self", blank=True, null=True, related_name="children", on_delete=models.CASCADE
     )
@@ -56,7 +56,7 @@ class Category(models.Model):
     def save(self, *args, **kwargs):
         # Criar o caminho amigável a partir do nome da categoria
         self.path = slugify(self.name)
-        
+
         super(Category, self).save(*args, **kwargs)
 
     def __str__(self):
