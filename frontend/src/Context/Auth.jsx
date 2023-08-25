@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Você pode verificar o token no localStorage aqui
   const [user, setUser] = useState();
   const [message, setMessage] = useState();
+  const [cart, setCart] = useState();
 
   const getUser = (user_id) => {
     axios
@@ -28,6 +29,7 @@ export function AuthProvider({ children }) {
       })
       .catch((error) => {
         console.error(error);
+        logout()
       });
   };
 
@@ -53,6 +55,7 @@ export function AuthProvider({ children }) {
     setIsLoggedIn(true);
     getUser(user_id);
     router.push("/");
+
   };
 
   const logout = () => {
@@ -61,9 +64,23 @@ export function AuthProvider({ children }) {
     setIsLoggedIn(false);
   };
 
+  const getCart = async () => {
+    const response = await axios
+      .get(`http://127.0.0.1:8000/cart/${localStorage.getItem("user_id")}/`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((response) => {
+        setCart(response.data);
+        return response.data;
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar produtos:", error);
+      });
+  }
+
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, login, logout, user, new_message, message }}
+      value={{ isLoggedIn, login, logout, user, new_message, message, getCart, cart }}
     >
       {children}
     </AuthContext.Provider>

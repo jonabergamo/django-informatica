@@ -28,7 +28,7 @@ export default function NavigationBar() {
   return (
     <header className="py-5 flex items-center justify-around">
       <h1
-        className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400 text-4xl font-bold cursor-pointer"
+        className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400 text-4xl font-bold cursor-pointer select-none"
         onClick={() => {
           router.push("/");
         }}

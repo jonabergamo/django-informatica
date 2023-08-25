@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <AuthProvider>
-        <body className="bg-zinc-900 text-white">
+        <body className="bg-zinc-900 text-white overflow-x-hidden">
           <NavigationBar />
           {children}
         </body>

@@ -4,7 +4,6 @@ export default function RatingStarts({ rating }) {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
 
-  console.log(fullStars);
 
   return (
     <div className="flex items-center pb-5">

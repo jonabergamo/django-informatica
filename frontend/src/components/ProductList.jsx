@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import RatingStars from "./RatingStarts";
+import { useAuth } from "../Context/Auth";
 
 export default function ProductList(props) {
   const [products, setProducts] = useState([]);
   const search_therm = props.search ? "search/" + props.search + "/" : "";
+  const { user, getCart } = useAuth()
 
-  useEffect(() => {
-    // Chamada à API para obter a lista de produtos
+  const getProducts = () => {
     axios
       .get(`http://127.0.0.1:8000/product/${search_therm}`)
       .then((response) => {
@@ -17,6 +18,11 @@ export default function ProductList(props) {
       .catch((error) => {
         console.error("Erro ao carregar produtos:", error);
       });
+  }
+
+  useEffect(() => {
+    // Chamada à API para obter a lista de produtos
+    getProducts()
   }, []); // Passar um array vazio como segundo argumento significa que este efeito será executado apenas uma vez, similar ao componentDidMount
 
   function truncateString(str, num) {
@@ -26,8 +32,20 @@ export default function ProductList(props) {
     return str.slice(0, num) + "...";
   }
 
-  const handleAddCart = () => {
-    axios.post(`http://127.0.0.1:8000/cart/add_product/${search_therm}`)
+  const handleAddCart = async (productId, quantity) => {
+    try {
+      const response = await axios.post(`http://127.0.0.1:8000/cart/${user.id}/add_product/`, {
+        product_id: productId,
+        quantity: quantity,
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, // Se a autenticação for necessária
+      });
+
+      console.log('Produto adicionado com sucesso:', response.data);
+      getCart()
+    } catch (error) {
+      console.error('Erro ao adicionar o produto:', error);
+    }
   }
 
   return (
@@ -72,7 +90,9 @@ export default function ProductList(props) {
           <button
             type="button"
             className="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-900 mt-5"
-            onClick={handleAddCart}
+            onClick={() => {
+              handleAddCart(product.id, 1)
+            }}
           >
             Adicionar ao Carrinho
           </button>
